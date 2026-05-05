@@ -1,0 +1,3 @@
+echo "server/.cache/" >> .gitignore
+echo "server/node_modules/" >> .gitignore
+echo "node_modules/" >> .gitignore
