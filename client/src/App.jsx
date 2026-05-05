@@ -46,7 +46,6 @@ function App() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const handleAction = async () => {
-    // Professional English Error Handling
     if (activeTool !== 'urlToPdf' && files.length === 0) return alert("Please select a file first.");
     if (activeTool === 'urlToPdf' && !urlInput) return alert("Please enter a valid website URL.");
     if (activeTool === 'splitPdf' && (!pageRange.start || !pageRange.end)) return alert("Please specify both the start and end pages.");
@@ -95,16 +94,12 @@ function App() {
   return (
     <div className="min-h-screen bg-[#FFF4F9] text-gray-800 font-sans selection:bg-pink-300 selection:text-white overflow-x-hidden relative">
       
-      {/* 🍭 CANDY BACKGROUND WITH DYNAMIC FLOATING IMAGES/ICONS */}
       <div className="fixed inset-0 z-[-1] overflow-hidden bg-gradient-to-br from-[#FFF4F9] via-[#F3F4FF] to-[#EFFFFD]">
-        {/* Floating Glass Icons */}
         <div className="absolute top-[10%] left-[5%] text-pink-200/40 animate-bounce duration-[3000ms]"><FaFilePdf size={120}/></div>
         <div className="absolute top-[40%] right-[5%] text-blue-200/40 animate-pulse duration-[4000ms]"><FaFileWord size={100}/></div>
         <div className="absolute bottom-[10%] left-[15%] text-emerald-200/40 animate-bounce duration-[5000ms]"><FaFileExcel size={80}/></div>
         <div className="absolute bottom-[20%] right-[20%] text-orange-200/30 animate-pulse duration-[6000ms]"><FaFilePowerpoint size={140}/></div>
         <div className="absolute top-[60%] left-[40%] text-purple-200/30 animate-bounce duration-[4500ms]"><FaLayerGroup size={60}/></div>
-
-        {/* Soft Background Orbs */}
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-pink-300/20 rounded-full blur-[120px] mix-blend-multiply"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-cyan-300/20 rounded-full blur-[140px] mix-blend-multiply"></div>
       </div>
@@ -166,7 +161,6 @@ function App() {
                  </div>
                )}
 
-               {/* Inputs for different tools */}
                {activeTool === 'urlToPdf' && <input type="url" placeholder="https://example.com" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} className="w-full p-6 bg-white border-2 border-pink-100 rounded-full text-gray-700 font-bold outline-none focus:border-pink-400 shadow-inner mt-4" />}
                {activeTool === 'splitPdf' && <div className="mt-6 flex gap-4"><input type="number" placeholder="Start Page" value={pageRange.start} onChange={(e) => setPageRange({...pageRange, start: e.target.value})} className="w-1/2 p-6 bg-white border-2 border-yellow-100 rounded-full text-center font-bold" /><input type="number" placeholder="End Page" value={pageRange.end} onChange={(e) => setPageRange({...pageRange, end: e.target.value})} className="w-1/2 p-6 bg-white border-2 border-yellow-100 rounded-full text-center font-bold" /></div>}
                {activeTool === 'removePages' && <input type="text" placeholder="e.g. 1, 3, 5" value={pagesToDelete} onChange={(e) => setPagesToDelete(e.target.value)} className="w-full p-6 bg-white border-2 border-pink-100 rounded-full text-gray-700 font-bold outline-none focus:border-pink-400 shadow-inner mt-6" />}
@@ -182,8 +176,19 @@ function App() {
                  </div>
                )}
 
+               {/* YAHAN WAPAS ADD KIYA HAI FILE SHOW KARNE WALA CODE */}
                {(files.length > 0 || activeTool === 'urlToPdf') && (
                  <div className="mt-10 space-y-4">
+                    
+                    {files.length > 0 && files.map(f => (
+                      <div key={f.name} className="flex justify-between items-center bg-white border-2 border-pink-100 p-4 rounded-full shadow-sm animate-in fade-in slide-in-from-bottom-2">
+                        <span className="text-sm font-bold text-gray-600 truncate max-w-[80%] pl-4">{f.name}</span>
+                        <div className="bg-red-50 p-3 rounded-full cursor-pointer hover:bg-red-100 transition-colors" onClick={() => setFiles(files.filter(file => file !== f))}>
+                            <FaTrash className="text-red-400"/>
+                        </div>
+                      </div>
+                    ))} 
+
                     <button onClick={handleAction} disabled={loading} className="w-full mt-8 bg-gradient-to-r from-pink-400 via-purple-400 to-cyan-400 text-white py-6 rounded-full font-black text-xl tracking-wide hover:shadow-[0_15px_30px_rgba(236,72,153,0.3)] hover:-translate-y-1 active:scale-95 transition-all duration-300">
                          {loading ? "MIXING MAGIC... ✨" : "DO THE MAGIC ✨"}
                     </button>
