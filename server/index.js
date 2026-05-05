@@ -195,16 +195,46 @@ app.post('/remove-pages', upload.single('file'), async (req, res) => {
     } catch (err) { res.status(500).send("Remove Pages error."); }
 });
 
-// 13. Add Watermark
-app.post('/add-watermark', upload.single('file'), async (req, res) => {
+// 13 Watermark Endpoint
+app.post('/watermark', upload.single('file'), async (req, res) => {
     try {
+        if (!req.file) return res.status(400).send("Please upload a PDF file");
+        
+        // Frontend se watermarkText aa raha hai
+        const { watermarkText } = req.body; 
+        if (!watermarkText) return res.status(400).send("Please provide watermark text");
+
+        // PDF Load karo aur Font embed karo
+        const { PDFDocument, rgb, degrees, StandardFonts } = require('pdf-lib');
         const pdfDoc = await PDFDocument.load(req.file.buffer);
-        pdfDoc.getPages().forEach(page => {
+        const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica); // Font lazmi hai
+        
+        const pages = pdfDoc.getPages();
+
+        // Har page par loop lagakar watermark draw karo
+        pages.forEach(page => {
             const { width, height } = page.getSize();
-            page.drawText(req.body.watermarkText, { x: width / 4, y: height / 2, size: 60, color: rgb(0.5, 0.5, 0.5), opacity: 0.3, rotate: degrees(45) });
+            page.drawText(watermarkText, {
+                x: width / 2 - 100, // Center ke aas-paas
+                y: height / 2,
+                size: 50,
+                font: helveticaFont, // Ye add karna zaroori tha
+                color: rgb(0.95, 0.1, 0.1), // Halka Red color
+                opacity: 0.3, // Transparent effect
+                rotate: degrees(45), // Tircha (diagonal) watermark
+            });
         });
-        res.set('Content-Type', 'application/pdf'); res.send(Buffer.from(await pdfDoc.save()));
-    } catch (err) { res.status(500).send("Watermark error."); }
+
+        const pdfBytes = await pdfDoc.save();
+        
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="watermarked.pdf"');
+        res.send(Buffer.from(pdfBytes));
+
+    } catch (error) {
+        console.error("Watermark Error:", error);
+        res.status(500).send("Server error while adding watermark");
+    }
 });
 
 // 14. Rotate PDF
