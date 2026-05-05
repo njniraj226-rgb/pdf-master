@@ -224,6 +224,40 @@ app.post('/watermark', upload.single('file'), async (req, res) => {
                 rotate: degrees(45), // Tircha (diagonal) watermark
             });
         });
+        // 1. Password Protect Endpoint
+app.post('/protect-pdf', upload.single('file'), async (req, res) => {
+    try {
+        const { password } = req.body;
+        const { PDFDocument } = require('pdf-lib');
+        const pdfDoc = await PDFDocument.load(req.file.buffer);
+        
+        // Note: pdf-lib basic encryption support karta hai
+        // Advanced protection ke liye 'qpdf' or 'hummus' use hota hai
+        // Hum yahan file ko re-save karke metadata set kar sakte hain
+        const pdfBytes = await pdfDoc.save({ 
+            userPassword: password, 
+            ownerPassword: password,
+            permissions: { printing: 'lowResolution', modifying: false }
+        });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(Buffer.from(pdfBytes));
+    } catch (e) { res.status(500).send("Error protecting PDF"); }
+});
+
+// 2. Compress PDF (Basic Level)
+app.post('/compress-pdf', upload.single('file'), async (req, res) => {
+    try {
+        const { PDFDocument } = require('pdf-lib');
+        const pdfDoc = await PDFDocument.load(req.file.buffer);
+        
+        // Compression ke liye hum objects ko re-index aur unnecessary metadata remove karte hain
+        const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.send(Buffer.from(pdfBytes));
+    } catch (e) { res.status(500).send("Error compressing PDF"); }
+});
 
         const pdfBytes = await pdfDoc.save();
         
